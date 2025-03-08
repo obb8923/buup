@@ -12,7 +12,17 @@ const COLORS = {
 
     // Gray
     gray200: '#d1d1d1',
+    gray600: '#6b6b6b',
     gray700:"#525252",
+    
+    // Red
+    red500: '#FF0a0a',
+    red700: '#a30000',
+
+    // 추가 색상
+    gray: "#888888",
+
+
 };
 
 export default COLORS;

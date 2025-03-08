@@ -22,8 +22,12 @@ module.exports = {
 
         // Gray
         gray200: '#d1d1d1',
+        gray600: '#6b6b6b',
         gray700:"#525252",
 
+        // Red
+        red500: '#FF0A0A',
+        red700: '#A30000',
       },
       padding: {
         px:'12px',

@@ -1,31 +1,18 @@
-import { Modal, TouchableOpacity, View, TextInput, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
+import { Modal, TouchableOpacity, View, TextInput, KeyboardAvoidingView, Platform, Keyboard, ScrollView } from "react-native";
 import Txt from "../Txt";
 import { ToDoItemType } from "../../stores/useToDoStore";
 import { useState, useCallback, useEffect, useRef } from "react";
 import EmojiPicker, { EmojiPickerRef } from '../EmojiPicker';
+import { ModalZLevel } from "../../constants/ZLevels";
+import { t, getCurrentLanguage } from "../../i18n";
+import TextToggle from "../TextToggle";
+import useThemeStore from "../../stores/useThemeStore";
+import useToDoStore from "../../stores/useToDoStore";
 
-/**
- * 날짜를 포맷팅하는 함수
- */
-const formatDate = (date?: Date): string => {
-  if (!date) return '설정되지 않음';
-  
-  try {
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      weekday: 'long'
-    });
-  } catch (error) {
-    console.error('Invalid date format', error);
-    return '유효하지 않은 날짜';
-  }
-};
 
-/**
- * 날짜를 YYYY-MM-DD 형식으로 변환하는 함수
- */
+
+
+// 날짜를 YYYY-MM-DD 형식으로 변환하는 함수
 const formatDateForInput = (date?: Date): string => {
   if (!date) return '';
   
@@ -39,52 +26,29 @@ const formatDateForInput = (date?: Date): string => {
     return '';
   }
 };
-
-/**
- * 남은 일수를 계산하는 함수
- */
-const getRemainingDays = (deadline?: Date): string => {
-  if (!deadline) return '';
-  
-  const today = new Date();
-  const diffTime = deadline.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays < 0) {
-    return `(기한 초과: ${Math.abs(diffDays)}일 지남)`;
-  } else if (diffDays === 0) {
-    return '(오늘 마감)';
-  } else if (diffDays === 1) {
-    return '(내일 마감)';
-  } else {
-    return `(${diffDays}일 남음)`;
-  }
-};
-
-/**
- * 할 일 세부 정보 모달 컴포넌트 - 직접 수정 가능
- */
+ // 할 일 세부 정보 모달 컴포넌트 - 직접 수정 가능
 const TodoDetailModal = ({ 
     visible, 
     onClose, 
     todo, 
-    onDelete, 
     isCompleted, 
-    onToggleComplete,
     onSave
   }: { 
     visible: boolean; 
     onClose: () => void; 
     todo: ToDoItemType; 
-    onDelete: () => void; 
     isCompleted: boolean;
-    onToggleComplete: () => void;
-    onSave: (content: string, deadline?: Date, emoji?: string) => void;
+    onSave: (content: string, deadline?: Date | null, emoji?: string, repetition?:string) => void;
   }) => {
     // 수정 상태 관리
     const [editContent, setEditContent] = useState(todo.content);
     const [editDeadline, setEditDeadline] = useState('');
     const [editEmoji, setEditEmoji] = useState(todo.emoji || '📝');
+    const [editRepetition, setEditRepetition] = useState<string>(todo.repetition || 'none');
+    const [hasDeadline, setHasDeadline] = useState(!!todo.deadline);
+    const [hasRepetition, setHasRepetition] = useState(todo.repetition !== 'none' && todo.repetition !== undefined);
+    const [isModified, setIsModified] = useState(false);
+    const [editIsCompleted, setEditIsCompleted] = useState(isCompleted);
     const emojiPickerRef = useRef<EmojiPickerRef>(null);
     
     // 모달이 열릴 때마다 초기값 설정
@@ -92,33 +56,99 @@ const TodoDetailModal = ({
       if (visible) {
         setEditContent(todo.content);
         setEditEmoji(todo.emoji || '📝');
-        setEditDeadline(formatDateForInput(todo.deadline));
+        setEditDeadline(formatDateForInput(todo.deadline || undefined));
+        setEditRepetition(todo.repetition || 'none');
+        setHasDeadline(!!todo.deadline);
+        setHasRepetition(todo.repetition !== 'none' && todo.repetition !== undefined);
+        setEditIsCompleted(isCompleted);
+        setIsModified(false);
       }
-    }, [visible, todo]);
+    }, [visible, todo, isCompleted]);
+    
+    // 내용 변경 감지
+    useEffect(() => {
+      const contentChanged = editContent !== todo.content;
+      const emojiChanged = editEmoji !== (todo.emoji || '📝');
+      const deadlineChanged = formatDateForInput(todo.deadline || undefined) !== editDeadline;
+      const repetitionChanged = (todo.repetition || 'none') !== editRepetition;
+      const hasDeadlineChanged = !!todo.deadline !== hasDeadline;
+      const hasRepetitionChanged = (todo.repetition !== 'none' && !!todo.repetition) !== hasRepetition;
+      const completedChanged = editIsCompleted !== isCompleted;
+      
+      setIsModified(contentChanged || emojiChanged || deadlineChanged || repetitionChanged || 
+                    hasDeadlineChanged || hasRepetitionChanged || completedChanged);
+    }, [editContent, editEmoji, editDeadline, editRepetition, hasDeadline, hasRepetition, editIsCompleted, todo, isCompleted]);
     
     // 저장 처리 함수
     const handleSave = useCallback(() => {
       if (editContent.trim() === '') return; // 내용이 비어있으면 저장하지 않음
       
-      let deadlineDate: Date | undefined = undefined;
+      let deadlineDate: Date | null | undefined = undefined;
       
-      if (editDeadline && editDeadline.trim() !== '') {
-        try {
-          deadlineDate = new Date(editDeadline);
-          
-          // Invalid Date 체크
-          if (isNaN(deadlineDate.getTime())) {
+      if (hasDeadline) {
+        if (editDeadline && editDeadline.trim() !== '') {
+          try {
+            deadlineDate = new Date(editDeadline);
+            
+            // Invalid Date 체크
+            if (isNaN(deadlineDate.getTime())) {
+              deadlineDate = undefined;
+            }
+          } catch (error) {
+            console.error('Invalid date format', error);
             deadlineDate = undefined;
           }
-        } catch (error) {
-          console.error('Invalid date format', error);
-          deadlineDate = undefined;
         }
+      } else {
+        // 마감일 없음을 명시적으로 표시
+        deadlineDate = null;
       }
       
-      onSave(editContent, deadlineDate, editEmoji);
+      const finalRepetition = hasRepetition ? editRepetition : 'none';
+      
+      // 완료 상태도 함께 저장하도록 수정
+      onSave(editContent, deadlineDate, editEmoji, finalRepetition);
+      
+      // 완료 상태 변경 처리
+      if (editIsCompleted !== isCompleted) {
+        // toggleTodo 함수를 호출하여 완료 상태 변경
+        useToDoStore.getState().toggleTodo(todo.id);
+      }
+      
       onClose();
-    }, [editContent, editDeadline, editEmoji, onSave, onClose]);
+    }, [editContent, editDeadline, editEmoji, editRepetition, hasDeadline, hasRepetition, editIsCompleted, isCompleted, todo.id, onSave, onClose]);
+    
+    // 완료 상태 토글 핸들러
+    const toggleCompleted = () => {
+      setEditIsCompleted(!editIsCompleted);
+    };
+    
+    // 마감일 토글 핸들러
+    const toggleDeadline = () => {
+      setHasDeadline(!hasDeadline);
+      if (!hasDeadline) {
+        // 마감일 활성화 시 기본값으로 오늘 날짜 설정
+        const today = new Date();
+        setEditDeadline(formatDateForInput(today));
+      }
+    };
+    
+    // 반복 설정 토글 핸들러
+    const toggleRepetition = () => {
+      setHasRepetition(!hasRepetition);
+      if (!hasRepetition) {
+        // 반복 설정 활성화 시 기본값으로 매일 설정
+        setEditRepetition('daily');
+      } else {
+        // 반복 설정 비활성화 시 none으로 설정
+        setEditRepetition('none');
+      }
+    };
+    
+    // 반복 설정 변경 핸들러
+    const handleRepetitionChange = (repetition: string) => {
+      setEditRepetition(repetition);
+    };
     
     // 이모지 선택 처리 함수
     const handleEmojiSelected = (emoji: string) => {
@@ -136,9 +166,17 @@ const TodoDetailModal = ({
     
     // 모달 닫기 처리 함수 - 닫기 전에 저장 처리
     const handleClose = useCallback(() => {
-      handleSave();
-    }, [handleSave]);
-    
+      if (isModified) {
+        handleSave();
+      } else {
+        onClose();
+      }
+    }, [isModified, onClose, handleSave]);
+    const { theme } = useThemeStore();
+
+    const currentLanguage = getCurrentLanguage();
+    const isEnglish = currentLanguage === 'en';
+
     return (
       <Modal
         animationType="fade"
@@ -151,61 +189,110 @@ const TodoDetailModal = ({
           style={{ flex: 1 }}
         >
           <View className="flex-1 justify-center items-center bg-black/50">
-            <View className="bg-white w-[90%] rounded-lg p-6 shadow-lg">
-              {/* 헤더와 내용을 합친 영역 */}
-              <View className="flex-row justify-between items-start mb-4">
-                {/* 이모지와 내용 */}
-                <View className="flex-row flex-1 mr-2">
-                  {/* 이모지 선택 */}
-                  <TouchableOpacity
-                    className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center mr-3"
-                    onPress={handleEmojiButtonPress}
-                  >
-                    <Txt variant="title" className="text-xl">{editEmoji}</Txt>
-                  </TouchableOpacity>
+            <View className={`${theme === 'dark' ? 'bg-black' : 'bg-white'} w-[90%] rounded-lg p-6 shadow-lg max-h-[80%]`} style={{ zIndex: ModalZLevel }}>
+              <ScrollView className="w-full">
+                {/* 헤더와 내용을 합친 영역 */}
+                <View className="flex-row justify-between items-start mb-4">
+                  {/* 이모지와 내용 */}
+                  <View className="flex-row flex-1 mr-2">
+                    {/* 이모지 선택 */}
+                    <TouchableOpacity
+                      className={`w-10 h-10 rounded-full ${theme === 'dark' ? 'bg-gray-800' : 'bg-gray-100'} items-center justify-center mr-3`}
+                      onPress={handleEmojiButtonPress}
+                    >
+                      <Txt variant="title" className="text-xl">{editEmoji}</Txt>
+                    </TouchableOpacity>
+                    
+                    {/* 내용 입력 필드 */}
+                    <TextInput
+                      className={`flex-1 border ${theme === 'dark' ? 'border-gray-700 bg-gray-800 text-white' : 'border-gray-300 bg-white text-black'} rounded-lg p-2`}
+                      value={editContent}
+                      onChangeText={setEditContent}
+                      placeholder={t('todo.detail.enterTodo')}
+                      placeholderTextColor={theme === 'dark' ? '#9ca3af' : '#6b7280'}
+                      multiline
+                      onFocus={() => emojiPickerRef.current?.hide()}
+                      style={{ color: theme === 'dark' ? 'white' : 'black' }}
+                    />
+                  </View>
                   
-                  {/* 내용 입력 필드 */}
-                  <TextInput
-                    className="flex-1 border border-gray-300 rounded-lg p-2"
-                    value={editContent}
-                    onChangeText={setEditContent}
-                    placeholder="할 일을 입력하세요"
-                    multiline
-                    onFocus={() => emojiPickerRef.current?.hide()}
-                  />
+                  {/* 닫기/저장 버튼 */}
+                  <TouchableOpacity onPress={handleClose} className={`p-2 rounded-lg`}>
+                    <Txt variant="paragraph" className={theme === 'dark' ? 'text-white' : 'text-black'}>
+                      {isModified ? t('todo.detail.save') : '✕'}
+                    </Txt>
+                  </TouchableOpacity>
                 </View>
                 
-                {/* 닫기 버튼 - 닫기 전에 저장 처리 */}
-                <TouchableOpacity onPress={handleClose} className="p-1">
-                  <Txt variant="paragraph">✕</Txt>
-                </TouchableOpacity>
-              </View>
-              
-              <View className="mb-4">
-                <Txt variant="subTitle" className="mb-2">상태:</Txt>
-                <View className="flex-row items-center">
-                  <Txt variant="paragraph">{isCompleted ? '완료됨' : '진행 중'}</Txt>
-                  <TouchableOpacity 
-                    className="ml-4 bg-gray-200 px-3 py-1 rounded-lg"
-                    onPress={onToggleComplete}
-                  >
-                    <Txt variant="paragraph">{isCompleted ? '미완료로 표시' : '완료로 표시'}</Txt>
-                  </TouchableOpacity>
+                    {/* 완료 상태 토글 */}
+                    <View className="flex-row justify-between items-center h-12"> 
+                    <TextToggle
+                      isActive={editIsCompleted}
+                      activeText={t('todo.detail.completed')}
+                      inactiveText={t('todo.detail.inProgress')}
+                      onToggle={toggleCompleted}
+                    />
+                    </View>
+                    <View className="w-full flex-row justify-between items-center h-12">
+                    {/* 마감일 토글 */}
+                    <TextToggle
+                      isActive={hasDeadline}
+                      activeText={t('todo.detail.useDeadline')}
+                      inactiveText={t('todo.detail.noDeadlineToggle')}
+                      onToggle={toggleDeadline}
+                    />
+                    {/* 마감일 입력 필드 */}
+                      {hasDeadline && (
+                      <TextInput
+                        className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-800 text-white' : 'border-gray-300 bg-white text-black'} rounded-lg p-2 w-[120px]`}
+                        value={editDeadline}
+                        onChangeText={setEditDeadline}
+                        placeholder={t('todo.detail.deadlinePlaceholder')}
+                        placeholderTextColor={theme === 'dark' ? '#9ca3af' : '#6b7280'}
+                        onFocus={() => emojiPickerRef.current?.hide()}
+                        style={{ color: theme === 'dark' ? 'white' : 'black' }}
+                      />
+                    )}
+                    </View>
+            
+                {/* 반복 설정 영역 추가 */}
+                <View className="w-full flex-row justify-between items-center h-12">
+                    <TextToggle
+                      isActive={hasRepetition}
+                      activeText={t('todo.detail.useRepetition')}
+                      inactiveText={t('todo.detail.noRepetition')}
+                      onToggle={toggleRepetition}
+                    />
+                  
+                  <View className="w-auto">
+                    {hasRepetition && (
+                      <View className="flex-row flex-wrap w-auto space-x-2">
+                        <TouchableOpacity 
+                          className={`px-3 py-1 rounded-full ${editRepetition === 'daily' ? 'bg-blue-500' : theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`}
+                          onPress={() => handleRepetitionChange('daily')}
+                        >
+                          <Txt variant="paragraph" className={`${isEnglish ? 'text-[10px]' : ''} ${editRepetition === 'daily' ? 'text-white' : theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{t('todo.repetition.daily')}</Txt>
+                        </TouchableOpacity>
+                        <TouchableOpacity 
+                          className={`px-3 py-1 rounded-full ${editRepetition === 'weekly' ? 'bg-blue-500' : theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`}
+                          onPress={() => handleRepetitionChange('weekly')}
+                        >
+                          <Txt variant="paragraph" className={`${isEnglish ? 'text-[10px]' : ''} ${editRepetition === 'weekly' ? 'text-white' : theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{t('todo.repetition.weekly')}</Txt>
+                        </TouchableOpacity>
+                        
+                        <TouchableOpacity 
+                          className={`px-3 py-1 rounded-full ${editRepetition === 'monthly' ? 'bg-blue-500' : theme === 'dark' ? 'bg-gray-700' : 'bg-gray-200'}`}
+                          onPress={() => handleRepetitionChange('monthly')}
+                        >
+                          <Txt variant="paragraph" className={`${isEnglish ? 'text-[10px]' : ''} ${editRepetition === 'monthly' ? 'text-white' : theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>{t('todo.repetition.monthly')}</Txt>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                  </View>
                 </View>
-              </View>
-              
-              <View className="mb-4">
-                <Txt variant="subTitle" className="mb-2">완료 기한:</Txt>
-                <TextInput
-                  className="border border-gray-300 rounded-lg p-2"
-                  value={editDeadline}
-                  onChangeText={setEditDeadline}
-                  placeholder="YYYY-MM-DD (예: 2024-03-15)"
-                  onFocus={() => emojiPickerRef.current?.hide()}
-                />
-              </View>
-              
-              {/* 버튼 영역 제거됨 */}
+                
+               
+              </ScrollView>
             </View>
           </View>
           

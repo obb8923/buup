@@ -1,9 +1,10 @@
 import React, { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
-import { View, TouchableOpacity, ScrollView, Text, Dimensions, Animated } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Text, Dimensions, Animated, Keyboard } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import { EMOJIS, EMOJI_CATEGORIES } from '../constants/Emojis';
 import Txt from './Txt';
+import { t } from '../i18n';
 
 export interface EmojiPickerRef {
   show: () => void;
@@ -24,6 +25,7 @@ const EmojiPicker = forwardRef<EmojiPickerRef, EmojiPickerProps>(({ onEmojiSelec
   const [visible, setVisible] = useState(false);
   const slideAnim = useState(new Animated.Value(250))[0]; // 초기값은 화면 밖
   const [recentEmojis, setRecentEmojis] = useState<string[]>([]);
+
   
   // 컴포넌트 마운트 시 최근 사용 이모지 로드
   useEffect(() => {
@@ -73,7 +75,7 @@ const EmojiPicker = forwardRef<EmojiPickerRef, EmojiPickerProps>(({ onEmojiSelec
     },
     hide: () => {
       Animated.timing(slideAnim, {
-        toValue: 250,
+        toValue: 500,
         duration: 300,
         useNativeDriver: true,
       }).start(() => {
@@ -88,6 +90,9 @@ const EmojiPicker = forwardRef<EmojiPickerRef, EmojiPickerProps>(({ onEmojiSelec
     onEmojiSelected(emoji);
   };
   
+
+
+  
   if (!visible) return null;
   
   const { width } = Dimensions.get('window');
@@ -100,14 +105,14 @@ const EmojiPicker = forwardRef<EmojiPickerRef, EmojiPickerProps>(({ onEmojiSelec
   
   return (
     <Animated.View 
-      className="absolute bottom-0 left-0 right-0 bg-gray-100 border-t border-gray-300 z-50"
+      className="absolute bottom-0 left-0 right-0 bg-gray-100 border-t border-gray-300 z-50 h-[300]"
       style={{ transform: [{ translateY: slideAnim }] }}
     >
       {/* 카테고리 탭 */}
       <ScrollView 
         horizontal 
         showsHorizontalScrollIndicator={false}
-        className="px-2.5 py-2 bg-white border-b border-gray-300"
+        className="px-2.5 py-2 bg-white border-b border-gray-300 flex-none"
         bounces={true}
       >
         {EMOJI_CATEGORIES.map((category) => (
@@ -122,7 +127,7 @@ const EmojiPicker = forwardRef<EmojiPickerRef, EmojiPickerProps>(({ onEmojiSelec
               variant="paragraph" 
               className={`${selectedCategory === category.key ? 'text-blue-500' : 'text-gray-500'}`}
             >
-              {category.label}
+              {t(`emojiPicker.categories.${category.key}`)}
             </Txt>
           </TouchableOpacity>
         ))}
@@ -130,7 +135,7 @@ const EmojiPicker = forwardRef<EmojiPickerRef, EmojiPickerProps>(({ onEmojiSelec
       
       {/* 이모지 그리드 */}
       <ScrollView 
-        className="p-1.5"
+        className="p-1.5 flex-1"
       >
         <View className="flex-row flex-wrap">
           {currentEmojis.map((emoji, index) => (
@@ -147,7 +152,7 @@ const EmojiPicker = forwardRef<EmojiPickerRef, EmojiPickerProps>(({ onEmojiSelec
           {selectedCategory === 'common' && recentEmojis.length === 0 && (
             <View className="w-full items-center justify-center py-4">
               <Txt variant="paragraph" className="text-gray-500">
-                최근 사용한 이모지가 없습니다
+                {t('emojiPicker.noRecentEmojis')}
               </Txt>
             </View>
           )}

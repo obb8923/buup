@@ -48,7 +48,7 @@ const BGBubble = ({ style, variant = "mini", point, initialOpacity }: BGBubblePr
     <Animated.View
       style={[
         {
-          zIndex: BackgroundZLevel,
+          zIndex: BackgroundZLevel + 10,
           position: 'absolute',
           width: bubbleSize,
           height: bubbleSize,

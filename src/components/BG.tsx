@@ -7,7 +7,6 @@ import BGBubble from './BGBubble';
 import useThemeStore from '../stores/useThemeStore';
 const BG = ({ children}: {children?: React.ReactNode}) => {
   const { theme } = useThemeStore();
-
   return (
     <SafeAreaView className="flex-1 z-[BackgroundZLevel]">
       <StatusBar

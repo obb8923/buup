@@ -1,60 +1,64 @@
 import React, { useState, useEffect } from 'react';
-import { GameEngine } from 'react-native-game-engine';
 import { View } from 'react-native';
 import BG from '../src/components/BG';
-// 컴포넌트와 시스템 임포트
-import Box from '../src/components/Box';
+// 컴포넌트 임포트
 import Bubble from '../src/components/Bubble';
-import { Physics } from '../src/systems/Physics';
 // 분리된 함수와 타입 임포트
 import { setupEntities, resetAnimation, Entities } from '../src/libs/funcs/animation';
-import RefreshButton from '../src/components/buttons/RefreshButton';
-import MenuButton from '../src/components/buttons/MenuButton';
-const App = () => {
-  const [running, setRunning] = useState(true);
-  const [gameEngine, setGameEngine] = useState<GameEngine | null>(null);
-  const [bgEngine, setBgEngine] = useState<GameEngine | null>(null);
-  
-  // 엔티티 상태 초기화
-  const [entities, setEntities] = useState<Entities | null>(() => setupEntities(Bubble, Box));
-  const [key, setKey] = useState(1); // 애니메이션 리셋을 위한 키 추가
+import useToDoStore from '../src/stores/useToDoStore';
+import BubbleButton from '../src/components/buttons/BubbleButton';
+import { BubbleButtonZLevel } from '../src/constants/ZLevels';
+import { router } from 'expo-router';
 
-  // 컴포넌트 언마운트 시 정리
+
+const App = () => {
+  // ToDoStore에서 할 일 목록 가져오기
+  const { todos } = useToDoStore();
+  // 완료되지 않은 할 일만 필터링
+  const uncompletedTodos = todos.filter(todo => !todo.completed);
+  // 엔티티 상태 초기화 - 완료되지 않은 할 일만 전달
+  const [entities, setEntities] = useState<Entities | null>(() => setupEntities(Bubble, uncompletedTodos));
+  const [shouldReset, setShouldReset] = useState(false); // 애니메이션 리셋을 위한 boolean 상태
+
+  // todos가 변경될 때마다 엔티티 업데이트
   useEffect(() => {
-    return () => {
-      // 필요한 정리 작업 수행
-      if (gameEngine ) {
-        (gameEngine as any).stop();
-      }
-      if (bgEngine ) {
-        (bgEngine as any).stop();
-      }
-    };
-  }, []);
+    // 완료되지 않은 할 일만 전달
+    resetAnimation(setEntities, setShouldReset, Bubble, uncompletedTodos);
+  }, [todos]);
 
   return (
     <BG>
-      <MenuButton />
+      {/* 버블 렌더링 */}
       {entities ? (
-        <>
-          <GameEngine
-            key={`main-${key}`}
-            ref={(ref) => { setGameEngine(ref) }}
-            style={[{flex:1}, {zIndex: 2}]}
-            systems={[Physics]}
-            entities={entities}
-            running={running}
-            onEvent={(e: any) => {
-              if (e.type === 'game-over') {
-                setRunning(false);
-              }
-            }}
-          >
-          </GameEngine>
-          {/* 새로고침 버튼 추가 */}
-         <RefreshButton setEntities={setEntities} setKey={setKey} Bubble={Bubble} Box={Box} resetAnimation={resetAnimation}/>
-        </>
+        <View style={{ flex: 1, zIndex: 2 }} key={`main-${shouldReset}`}>
+          {/* 버블 렌더링 */}
+          {entities.bubbles.map((bubble) => (
+            <Bubble 
+              key={bubble.id}
+              id={bubble.id}
+              targetPosition={bubble.targetPosition}
+              todoData={bubble.todoData}
+            />
+          ))}
+        </View>
       ) : null}
+     
+      {/* 버튼 렌더링 */}
+      <View className={`flex-row w-full absolute bottom-[20px] left-0 px-px z-[${BubbleButtonZLevel}]`}>
+       
+
+            <BubbleButton variant='refresh' onPressIn={() => resetAnimation(setEntities, setShouldReset, Bubble, uncompletedTodos)} />
+            <View className='w-[20px]'/>
+            <BubbleButton variant='list' onPressIn={() => router.push({
+              pathname: '/Menu',
+              params: { MenuType: 'ToDo' }
+            })} />
+            <View className='w-[20px]'/>
+            <BubbleButton variant='setting' onPressIn={() => router.push({
+              pathname: '/Menu',
+              params: { MenuType: 'Setting' }
+            })}/>
+      </View>
     </BG>
   );
 };
