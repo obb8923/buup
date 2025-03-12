@@ -58,10 +58,6 @@ function TodoAddInput() {
   const [newTodoContent, setNewTodoContent] = useState('');
   const [selectedEmoji, setSelectedEmoji] = useState('📝');
   const [isInputFocused, setIsInputFocused] = useState(false);
-  useEffect(() => {
-    console.log(' isInputFocused',isInputFocused)
-  },[isInputFocused])
-
   // 포커스 상태 관리를 위한 추가 변수
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   

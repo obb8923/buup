@@ -219,6 +219,7 @@ const ToDoItem = memo(({
         todo={todoItem}
         isCompleted={isCompleted}
         onSave={handleSaveEdit}
+        onDelete={handleDelete}
       />
     </>
   );

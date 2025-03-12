@@ -1,6 +1,6 @@
 export default {
   common: {
-    appName: '부업',
+    appName: 'ToyDo',
     ok: '확인',
     cancel: '취소',
     back: '뒤로',
@@ -20,8 +20,10 @@ export default {
     themeSettings: '테마 설정',
     light: '라이트',
     dark: '다크',
-    buup: 'Buup',
     languageSettings: '언어 설정',
+    modeSettings: '모드 설정',
+    bubble: '버블',
+    block: '블록',
     appInfo: '앱 정보',
     version: '버전',
     termsOfService: '이용약관',
@@ -52,6 +54,7 @@ export default {
     },
     detail: {
       delete: '삭제',
+      deleteTodo: '삭제하기',
       save: '저장',
       add: '추가',
       content: '내용',

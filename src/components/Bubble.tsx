@@ -1,20 +1,19 @@
-import React, { useRef, useMemo, useState, useEffect } from 'react';
+import React, { useMemo} from 'react';
 import { View, TouchableOpacity, Alert } from 'react-native';
 import Colors from '../constants/Colors';
 import Text from './Txt';
-import { BubbleConstant as BC} from '../constants/bubbleConstant';
+import { BubbleConstant as BC} from '../constants/EntitiesConstants';
 import useThemeStore from '../stores/useThemeStore';
 import { MotiView } from 'moti';
 import { Dimensions } from 'react-native';
 import { Easing } from 'react-native-reanimated';
 import { ToDoItemType } from '../stores/useToDoStore';
 import TodoDetailModal from './modals/TodoDetailModal';
-import useToDoStore from '../stores/useToDoStore';
 import { BubbleZLevel } from '../constants/ZLevels';
 import useTodoModal from '../libs/hooks/useTodoModal';
-// SVG 컴포넌트 임포트 (.tsx 확장자 제거)
+// SVG 컴포넌트 임포트
 import BubbleSvg from '../../assets/svgs/Bubble1';
-
+import BubbleGradient from '../../assets/svgs/BubbleGradient';
 // 새로운 타입 정의: Matter.js 종속성 제거
 export interface BubbleProps {
   id: string;
@@ -27,16 +26,12 @@ export interface BubbleProps {
 const Bubble = ({id, position, targetPosition, size, todoData}: BubbleProps) => {
   const { theme } = useThemeStore();
   const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-  
-  // TodoStore에서 필요한 함수들 가져오기
-  const { toggleTodo, editTodoContent, removeTodo } = useToDoStore();
-  
+    
   // useTodoModal 훅 사용
   const {
     modalVisible,
     handleOpenModal,
     handleCloseModal,
-    handleToggleTodo,
     handleSaveTodo,
     handleDeleteTodo
   } = useTodoModal(todoData);
@@ -59,7 +54,7 @@ const Bubble = ({id, position, targetPosition, size, todoData}: BubbleProps) => 
   const startY = position ? position[1] : screenHeight + 50; // 화면 아래 바깥에서 시작
   
   // 좌우 움직임을 위한 랜덤 진폭 생성 (더 작은 범위로 조정)
-  const smallAmplitude = 1 + Math.random() * 1.5; // 1-2.5 사이의 작은 진폭
+  const smallAmplitude = 2 + Math.random() * 3; // 1-2.5 사이의 작은 진폭
   
   // 크기에 따른 속도 계산 (작은 버블이 더 빠르게 움직임)
   // 크기 차이가 줄었으므로 속도 차이도 줄임
@@ -69,10 +64,8 @@ const Bubble = ({id, position, targetPosition, size, todoData}: BubbleProps) => 
   // 버블 클릭 핸들러
   const handleBubblePress = () => {
     if (todoData) {
-      console.log(`Bubble pressed: ${todoData.id} - ${todoData.content}`);
       handleOpenModal(); // 커스텀 훅의 함수 사용
     } else {
-      console.log('Bubble pressed but no todoData');
       Alert.alert('알림', '할 일 데이터가 없습니다.');
     }
   };
@@ -140,8 +133,8 @@ const Bubble = ({id, position, targetPosition, size, todoData}: BubbleProps) => 
           }}
         >
           {/* 테마에 따라 다른 배경 적용 */}
-          {theme === 'buup' ? (
-            // buup 테마일 때 BubbleSvg 사용
+          {theme === 'ToyDo' ? (
+            // ToyDo 테마일 때 BubbleSvg 사용
             <View style={{ 
               position: 'absolute', 
               width: '100%', 
@@ -158,10 +151,10 @@ const Bubble = ({id, position, targetPosition, size, todoData}: BubbleProps) => 
               width: '100%',
               height: '100%',
               borderRadius: width / 2,
-              borderWidth: 1,
-              borderColor: theme === 'light' ? Colors.black : Colors.white,
               backgroundColor: 'transparent'
-            }} />
+            }} >
+              <BubbleGradient width={width} height={height} />
+            </View>
           )}
           
           {/* 이모지 텍스트 */}
@@ -181,10 +174,9 @@ const Bubble = ({id, position, targetPosition, size, todoData}: BubbleProps) => 
           visible={modalVisible}
           onClose={handleCloseModal}
           todo={todoData}
-          onDelete={handleDeleteTodo}
           isCompleted={todoData.completed}
-          onToggleComplete={handleToggleTodo}
           onSave={handleSaveTodo}
+          onDelete={handleDeleteTodo}
         />
       )}
       </View>

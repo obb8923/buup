@@ -1,6 +1,6 @@
 export default {
   common: {
-    appName: 'Buup',
+    appName: 'ToyDo',
     ok: 'OK',
     cancel: 'Cancel',
     back: 'Back',
@@ -20,8 +20,10 @@ export default {
     themeSettings: 'Theme Settings',
     light: 'Light',
     dark: 'Dark',
-    buup: 'Buup',
     languageSettings: 'Language Settings',
+    modeSettings: 'Mode Settings',
+    bubble: 'Bubble',
+    block: 'Block',
     appInfo: 'App Info',
     version: 'Version',
     termsOfService: 'Terms of Service',
@@ -52,6 +54,7 @@ export default {
     },
     detail: {
       delete: 'Delete',
+      deleteTodo: 'Delete Todo',
       save: 'Save',
       add: 'Add',
       content: 'Content',

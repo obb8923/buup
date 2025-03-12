@@ -32,13 +32,15 @@ const TodoDetailModal = ({
     onClose, 
     todo, 
     isCompleted, 
-    onSave
+    onSave,
+    onDelete
   }: { 
     visible: boolean; 
     onClose: () => void; 
     todo: ToDoItemType; 
     isCompleted: boolean;
     onSave: (content: string, deadline?: Date | null, emoji?: string, repetition?:string) => void;
+    onDelete: () => void;
   }) => {
     // 수정 상태 관리
     const [editContent, setEditContent] = useState(todo.content);
@@ -50,7 +52,7 @@ const TodoDetailModal = ({
     const [isModified, setIsModified] = useState(false);
     const [editIsCompleted, setEditIsCompleted] = useState(isCompleted);
     const emojiPickerRef = useRef<EmojiPickerRef>(null);
-    
+    const [isDeleteConfirmed, setIsDeleteConfirmed] = useState(false);
     // 모달이 열릴 때마다 초기값 설정
     useEffect(() => {
       if (visible) {
@@ -166,12 +168,14 @@ const TodoDetailModal = ({
     
     // 모달 닫기 처리 함수 - 닫기 전에 저장 처리
     const handleClose = useCallback(() => {
-      if (isModified) {
+      if(isDeleteConfirmed){
+        onDelete();
+      } else if (isModified) {
         handleSave();
       } else {
         onClose();
       }
-    }, [isModified, onClose, handleSave]);
+    }, [isModified, onClose, handleSave, isDeleteConfirmed, onDelete]);
     const { theme } = useThemeStore();
 
     const currentLanguage = getCurrentLanguage();
@@ -219,18 +223,28 @@ const TodoDetailModal = ({
                   {/* 닫기/저장 버튼 */}
                   <TouchableOpacity onPress={handleClose} className={`p-2 rounded-lg`}>
                     <Txt variant="paragraph" className={theme === 'dark' ? 'text-white' : 'text-black'}>
-                      {isModified ? t('todo.detail.save') : '✕'}
+                      {isDeleteConfirmed ? t('todo.detail.delete') : isModified ? t('todo.detail.save') : '✕'}
                     </Txt>
                   </TouchableOpacity>
                 </View>
                 
-                    {/* 완료 상태 토글 */}
                     <View className="flex-row justify-between items-center h-12"> 
+                    {/* 완료 상태 토글 */}
+
                     <TextToggle
                       isActive={editIsCompleted}
                       activeText={t('todo.detail.completed')}
                       inactiveText={t('todo.detail.inProgress')}
                       onToggle={toggleCompleted}
+                    />
+                    {/* 삭제 토글 */}
+
+                   <TextToggle
+                      isActive={isDeleteConfirmed}
+                      activeText={t('todo.detail.deleteTodo')}
+                      inactiveText={t('todo.detail.deleteTodo')}
+                      onToggle={() => setIsDeleteConfirmed(!isDeleteConfirmed)}
+                      isDelete={true}
                     />
                     </View>
                     <View className="w-full flex-row justify-between items-center h-12">

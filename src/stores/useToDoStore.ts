@@ -27,7 +27,7 @@ interface ToDoState {
 }
 
 // AsyncStorage 키
-const TODOS_STORAGE_KEY = '@buup:todos';
+const TODOS_STORAGE_KEY = '@ToyDo:todos';
 
 // 날짜를 안전하게 처리하는 직렬화 함수
 const serializeTodos = (todos: ToDoItemType[]): string => {
@@ -49,10 +49,6 @@ const deserializeTodos = (json: string): ToDoItemType[] => {
       }
       return value;
     });
-    parsed.forEach((item: any) => {
-      console.log('@@@@@',typeof(item.deadline));
-      console.log('@@@@@',item.deadline);
-    });
     
     // 유효성 검사 및 타입 보정
     const result = parsed.map((item: any) => ({
@@ -66,7 +62,7 @@ const deserializeTodos = (json: string): ToDoItemType[] => {
                   item.repetition : 'none'
     }));
     
-    console.log('복원된 데이터:', JSON.stringify(result, null, 2));
+    // console.log('복원된 데이터:', JSON.stringify(result, null, 2));
     return result;
   } catch (error) {
     console.error('데이터 역직렬화 오류:', error);
@@ -116,14 +112,14 @@ const loadTodosFromStorage = async (): Promise<ToDoItemType[]> => {
       return initialTodos;
     }
     
-    console.log('불러온 원시 데이터:', storedData.substring(0, 200) + '...');
+    // console.log('불러온 원시 데이터:', storedData.substring(0, 200) + '...');
     const todos = deserializeTodos(storedData);
     
-    console.log('불러온 데이터:', todos.map(todo => ({
-      id: todo.id,
-      deadline: todo.deadline,
-      repetition: todo.repetition
-    })));
+    // console.log('불러온 데이터:', todos.map(todo => ({
+    //   id: todo.id,
+    //   deadline: todo.deadline,
+    //   repetition: todo.repetition
+    // })));
     
     return todos;
   } catch (error) {

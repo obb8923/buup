@@ -4,9 +4,10 @@ import Txt from "../../src/components/Txt";
 import useThemeStore from "../../src/stores/useThemeStore";
 import { useState, memo } from "react";
 import { t, useLanguage } from "../../src/i18n";
-
+import useModeStore from "../../src/stores/useModeStore";
 const Setting = memo(() => {
     const { theme, setTheme } = useThemeStore();
+    const { mode, setMode } = useModeStore();
     // const [reminderEnabled, setReminderEnabled] = useState(true);
     // const [autoDelete, setAutoDelete] = useState(false);
     // const [biometricLogin, setBiometricLogin] = useState(false);
@@ -15,6 +16,17 @@ const Setting = memo(() => {
     
     return (
         <ScrollView className={`flex-1 px-px pt-pt ${theme === "dark" ? "bg-gray-700" : "bg-gray-200"}`}>
+            {/* 모드 설정 */}
+            <Section title={t('settings.modeSettings')}>
+            <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setMode("block")}>
+                    <Txt variant="paragraph">{t('settings.block')}</Txt>
+                    {mode === "block" && <Txt variant="paragraph" className="text-gray-600">✓</Txt>}
+                </TouchableOpacity>
+                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setMode("bubble")}>
+                    <Txt variant="paragraph">{t('settings.bubble')}</Txt>
+                    {mode === "bubble" && <Txt variant="paragraph" className="text-gray-600">✓</Txt>}
+                </TouchableOpacity>
+            </Section>
             {/* 테마 설정 */}
             <Section title={t('settings.themeSettings')}>
                 <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setTheme("light")}>
@@ -31,12 +43,12 @@ const Setting = memo(() => {
                     </View>
                     {theme === "dark" && <Txt variant="paragraph" className="text-gray-600">✓</Txt>}
                 </TouchableOpacity>
-                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg`} onPress={()=>setTheme("buup")}>
+                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg`} onPress={()=>setTheme("ToyDo")}>
                     <View className="flex-row items-center">
                         <View className="w-[20px] h-[20px] border border-black rounded-full bg-bubble mr-2"></View>
-                        <Txt variant="paragraph">{t('settings.buup')}</Txt>
+                        <Txt variant="paragraph">{t('common.appName')}</Txt>
                     </View>
-                    {theme === "buup" && <Txt variant="paragraph" className="text-gray-600">✓</Txt>}
+                    {theme === "ToyDo" && <Txt variant="paragraph" className="text-gray-600">✓</Txt>}
                 </TouchableOpacity>
             </Section>
          

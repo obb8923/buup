@@ -10,6 +10,7 @@ interface TextToggleProps {
   onToggle: () => void;
   activeColor?: string;
   inactiveColor?: string;
+  isDelete?: boolean;
 }
 //  텍스트가 있는 토글 컴포넌트
 const TextToggle = ({
@@ -19,6 +20,7 @@ const TextToggle = ({
   onToggle,
   activeColor = 'bg-blue-500',
   inactiveColor = 'bg-gray-200',
+  isDelete = false,
 }: TextToggleProps) => {
   // 현재 언어 가져오기
   const currentLanguage = getCurrentLanguage();
@@ -48,7 +50,7 @@ const TextToggle = ({
   const backgroundColor = animation.interpolate({
     inputRange: [0, 1],
     outputRange: [inactiveColor.includes('bg-') ? '#e5e7eb' : inactiveColor, 
-                 activeColor.includes('bg-') ? '#3b82f6' : activeColor]
+                 activeColor.includes('bg-') ? isDelete ? '#f43f5e' : '#3b82f6' : activeColor]
   });
 
   // 활성화 텍스트 투명도 애니메이션
@@ -104,7 +106,7 @@ const TextToggle = ({
             <Animated.View 
               className={`absolute w-5 h-5 rounded-full flex items-center justify-center ${
                 isActive 
-                  ? 'bg-blue-500 ' 
+                  ? isDelete ? 'bg-red-500' : 'bg-blue-500' 
                   : theme === 'dark' ? 'bg-gray-700' : 'bg-gray-300'
               }`}
               style={{ 

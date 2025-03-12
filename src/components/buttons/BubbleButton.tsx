@@ -4,8 +4,8 @@ import Colors from '../../constants/Colors';
 import useThemeStore from '../../stores/useThemeStore';
 import { BubbleZLevel } from '../../constants/ZLevels';
 import BubbleSvg from '../../../assets/svgs/Bubble1';
-import { BubbleConstant as BC } from '../../constants/bubbleConstant';
-
+import { BubbleConstant as BC } from '../../constants/EntitiesConstants';
+import BubbleGradient from '../../../assets/svgs/BubbleGradient';
 
 export interface BubbleButtonProps {
  variant: 'list' | 'setting'|'refresh';
@@ -29,8 +29,8 @@ const BubbleButton = ({variant, onPressIn}: BubbleButtonProps) => {
       >
         
           {/* 테마에 따라 다른 배경 적용 */}
-          {theme === 'buup' ? (
-            // buup 테마일 때 BubbleSvg 사용
+          {theme === 'ToyDo' ? (
+            // ToyDo 테마일 때 BubbleSvg 사용
             <View style={{ 
               position: 'absolute', 
               width: '100%', 
@@ -47,10 +47,10 @@ const BubbleButton = ({variant, onPressIn}: BubbleButtonProps) => {
               width: '100%',
               height: '100%',
               borderRadius: BC.size ,
-              borderWidth: 1,
-              borderColor: theme === 'light' ? Colors.black : Colors.white,
               backgroundColor: 'transparent'
-            }} />
+            }} >
+              <BubbleGradient width={BC.size * 2} height={BC.size * 2} />
+            </View>
           )}
           
             {/* 이모지 텍스트 */}

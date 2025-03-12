@@ -1,5 +1,5 @@
 
-export type ThemeType = 'light' | 'dark' | 'buup';
+export type ThemeType = 'light' | 'dark' | 'ToyDo';
 
 export type ThemeState = {
   theme: ThemeType;

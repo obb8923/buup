@@ -32,7 +32,7 @@ export const SUPPORTED_LANGUAGES = {
 export const DEFAULT_LANGUAGE: TranslationKeys = 'en';
 
 // AsyncStorage에 저장될 언어 설정 키
-const LANGUAGE_STORAGE_KEY = '@buup:language';
+const LANGUAGE_STORAGE_KEY = '@ToyDo:language';
 
 // i18n 인스턴스 생성
 const i18n = I18n;

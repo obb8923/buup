@@ -1,6 +1,6 @@
 import PoissonDiskSampling from "poisson-disk-sampling";
 import { Dimensions } from "react-native";
-import { BubbleConstant as BC } from "../../constants/bubbleConstant";
+import { BubbleConstant as BC } from "../../constants/EntitiesConstants";
 
 // 버블의 최대 크기와 진폭을 고려한 여백 설정
 const maxBubbleSize = BC.maxSize;

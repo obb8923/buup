@@ -11,10 +11,10 @@ const BG = ({ children}: {children?: React.ReactNode}) => {
     <SafeAreaView className="flex-1 z-[BackgroundZLevel]">
       <StatusBar
         barStyle={theme==="light"?"dark-content":"light-content"}
-        backgroundColor={theme==="buup"?Colors.pattern:theme==="light"?Colors.white:Colors.black}
+        backgroundColor={theme==="ToyDo"?Colors.pattern:theme==="light"?Colors.white:Colors.black}
         translucent={false}
       />
-      {theme==="buup"&&
+      {theme==="ToyDo"&&
         <LinearGradient
           colors={[Colors.pattern,Colors.background2,Colors.background1]}
           start={{x: 0, y: 0}}

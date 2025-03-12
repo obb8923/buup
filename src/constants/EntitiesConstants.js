@@ -1,5 +1,3 @@
-import { Dimensions } from 'react-native';
-const { width } = Dimensions.get('window');
 export const BubbleConstant = {
     size: 32.5,
     minSize: 26,
@@ -10,4 +8,9 @@ export const BubbleConstant = {
     friction: 0.2,
     airFriction: 0.2,
     buoyancy: 0.0000015,
+}
+
+export const BlockConstant = {
+    size: 80,
+    
 }

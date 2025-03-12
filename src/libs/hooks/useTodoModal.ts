@@ -18,7 +18,6 @@ export const useTodoModal = (todoData: ToDoItemType | undefined, onModalClose?: 
   // 모달 열기 핸들러
   const handleOpenModal = useCallback(() => {
     if (todoData) {
-      console.log(`Todo modal opened: ${todoData.id} - ${todoData.content}`);
       setModalVisible(true);
     }
   }, [todoData]);
@@ -39,9 +38,14 @@ export const useTodoModal = (todoData: ToDoItemType | undefined, onModalClose?: 
   }, [todoData, toggleTodo]);
   
   // 할 일 저장 핸들러
-  const handleSaveTodo = useCallback((content: string, deadline?: Date, emoji?: string) => {
+  const handleSaveTodo = useCallback((
+    content: string, 
+    deadline?: Date | null, 
+    emoji?: string,
+    repetition?: string
+  ) => {
     if (todoData) {
-      editTodoContent(todoData.id, content, deadline, emoji);
+      editTodoContent(todoData.id, content, deadline, emoji, repetition);
     }
   }, [todoData, editTodoContent]);
   
