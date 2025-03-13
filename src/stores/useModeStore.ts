@@ -9,7 +9,7 @@ interface ModeState {
 }
 
 const useModeStore = create<ModeState>((set) => ({
-  mode: 'bubble',
+  mode: 'block',
   setMode: async (mode: ModeType) => {
     try {
       await AsyncStorage.setItem('@ToyDo:mode', mode);

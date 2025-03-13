@@ -5,7 +5,7 @@ import { t } from "../../src/i18n";
 import Txt from "../../src/components/Txt";
 import TodoDetailModal from "../../src/components/modals/TodoDetailModal";
 import TodoAddInput from "../../src/components/TodoAddInput";
-import useToDoStore, { ToDoItemType } from "../../src/stores/useToDoStore";
+import useToDoStore, { RepetitionType, ToDoItemType } from "../../src/stores/useToDoStore";
 import useThemeStore from "../../src/stores/useThemeStore";
 
 //   ToDo 컴포넌트 - 할 일 목록을 표시하고 드래그로 순서를 변경할 수 있는 기능 제공
@@ -132,7 +132,7 @@ const ToDoItem = memo(({
   }, [id, removeTodo]);
   
   // 수정 저장 함수
-  const handleSaveEdit = useCallback((editedContent: string, editedDeadline?: Date | null, editedEmoji?: string, repetition?: string) => {
+  const handleSaveEdit = useCallback((editedContent: string, editedDeadline?: Date | null, editedEmoji?: string, repetition?: RepetitionType) => {
     editTodoContent(id, editedContent, editedDeadline, editedEmoji, repetition);
     // deadline이 수정되면 자동으로 목록을 deadline 기준으로 정렬
     sortByDeadline();
@@ -154,8 +154,15 @@ const ToDoItem = memo(({
     if (!deadline) return "";
     
     const today = new Date();
-    const diffTime = deadline.getTime() - today.getTime();
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // 날짜만 비교하기 위해 시간 정보 제거
+    today.setHours(0, 0, 0, 0);
+    
+    const deadlineDate = new Date(deadline);
+    deadlineDate.setHours(0, 0, 0, 0);
+    
+    // 날짜 차이 계산 (밀리초 -> 일)
+    const diffTime = deadlineDate.getTime() - today.getTime();
+    const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
     
     if (diffDays < 0) {
       return t('todo.deadline.overdue');
@@ -185,7 +192,7 @@ const ToDoItem = memo(({
   return (
     <>
       <Pressable
-        className={`${theme==="dark"?"bg-black":"bg-white"} 
+        className={`${theme==="dark"?"bg-blockBlack":"bg-white"} 
         h-auto rounded-lg p-4 px-px mb-4 flex-row
         ${completed ? 'opacity-60' : 'opacity-100'}`}
         onPress={() => toggleModal(true)}

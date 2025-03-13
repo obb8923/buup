@@ -5,13 +5,20 @@ import Colors from '../constants/Colors'
 import { generatePointsAll } from '../libs/funcs/poissonDiskSampling';
 import BGBubble from './BGBubble';
 import useThemeStore from '../stores/useThemeStore';
+import useModeStore from '../stores/useModeStore';
 const BG = ({ children}: {children?: React.ReactNode}) => {
   const { theme } = useThemeStore();
+  const { mode } = useModeStore();
+  const StatusBarColor = theme === "ToyDo" 
+    ? Colors.pattern 
+    : mode === "block" 
+      ? (theme === "light" ? Colors.blockWhite : Colors.blockBlack)
+      : (theme === "light" ? Colors.white : Colors.blockBlack);
   return (
     <SafeAreaView className="flex-1 z-[BackgroundZLevel]">
       <StatusBar
         barStyle={theme==="light"?"dark-content":"light-content"}
-        backgroundColor={theme==="ToyDo"?Colors.pattern:theme==="light"?Colors.white:Colors.black}
+        backgroundColor={StatusBarColor}
         translucent={false}
       />
       {theme==="ToyDo"&&
@@ -26,13 +33,23 @@ const BG = ({ children}: {children?: React.ReactNode}) => {
           {children}
         </LinearGradient>
       }
-      {theme==="light"&&
+      {theme==="light"&&mode==="block"&&
+      <View className='flex-1 bg-blockWhite'>
+        {children}
+       </View>
+      }
+      {theme==="dark"&&mode==="block"&&
+      <View className='flex-1 bg-blockBlack'>
+        {children}
+       </View>
+      }
+       {theme==="light"&&mode==="bubble"&&
       <View className='flex-1 bg-white'>
         {children}
        </View>
       }
-      {theme==="dark"&&
-      <View className='flex-1 bg-black'>
+      {theme==="dark"&&mode==="bubble"&&
+      <View className='flex-1 bg-blockBlack'>
         {children}
        </View>
       }

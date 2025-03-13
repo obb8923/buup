@@ -1,6 +1,6 @@
 import { Modal, TouchableOpacity, View, TextInput, KeyboardAvoidingView, Platform, Keyboard, ScrollView } from "react-native";
 import Txt from "../Txt";
-import { ToDoItemType } from "../../stores/useToDoStore";
+import { RepetitionType, ToDoItemType } from "../../stores/useToDoStore";
 import { useState, useCallback, useEffect, useRef } from "react";
 import EmojiPicker, { EmojiPickerRef } from '../EmojiPicker';
 import { ModalZLevel } from "../../constants/ZLevels";
@@ -39,7 +39,7 @@ const TodoDetailModal = ({
     onClose: () => void; 
     todo: ToDoItemType; 
     isCompleted: boolean;
-    onSave: (content: string, deadline?: Date | null, emoji?: string, repetition?:string) => void;
+    onSave: (content: string, deadline?: Date | null, emoji?: string, repetition?:RepetitionType) => void;
     onDelete: () => void;
   }) => {
     // 수정 상태 관리
@@ -106,7 +106,7 @@ const TodoDetailModal = ({
         deadlineDate = null;
       }
       
-      const finalRepetition = hasRepetition ? editRepetition : 'none';
+      const finalRepetition: RepetitionType = hasRepetition ? editRepetition as RepetitionType : 'none';
       
       // 완료 상태도 함께 저장하도록 수정
       onSave(editContent, deadlineDate, editEmoji, finalRepetition);

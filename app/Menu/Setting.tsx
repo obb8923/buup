@@ -15,41 +15,43 @@ const Setting = memo(() => {
     const languages = ["ko", "en"];
     
     return (
-        <ScrollView className={`flex-1 px-px pt-pt ${theme === "dark" ? "bg-gray-700" : "bg-gray-200"}`}>
+        <ScrollView className={`flex-1 px-px pt-pt ${theme === "dark" ? "bg-gray-600" : "bg-gray-200"}`}>
             {/* 모드 설정 */}
             <Section title={t('settings.modeSettings')}>
-            <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setMode("block")}>
-                    <Txt variant="paragraph">{t('settings.block')}</Txt>
+            <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setMode("block")}>
+                    <Txt variant="paragraph" >{t('settings.block')}</Txt>
                     {mode === "block" && <Txt variant="paragraph" className="text-gray-600">✓</Txt>}
                 </TouchableOpacity>
-                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setMode("bubble")}>
+                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setMode("bubble")}>
                     <Txt variant="paragraph">{t('settings.bubble')}</Txt>
                     {mode === "bubble" && <Txt variant="paragraph" className="text-gray-600">✓</Txt>}
                 </TouchableOpacity>
             </Section>
             {/* 테마 설정 */}
             <Section title={t('settings.themeSettings')}>
-                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setTheme("light")}>
+                {/* 라이트 테마 */}
+                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setTheme("light")}>
                     <View className="flex-row items-center">
-                        <View className="w-[20px] h-[20px] border border-black rounded-full bg-white mr-2"></View>
+                        <View className="w-[20px] h-[20px] border border-blockBlack rounded-full bg-white mr-2"></View>
                         <Txt variant="paragraph">{t('settings.light')}</Txt>
                     </View>
                     {theme === "light" && <Txt variant="paragraph" className="text-gray-600">✓</Txt>}
                 </TouchableOpacity>
-                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setTheme("dark")}>
+                {/* 다크 테마 */}
+                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg mb-2`} onPress={()=>setTheme("dark")}>
                     <View className="flex-row items-center">
-                        <View className="w-[20px] h-[20px] border border-black rounded-full bg-black mr-2"></View>
+                        <View className="w-[20px] h-[20px] border border-gray-600 rounded-full bg-blockBlack mr-2"></View>
                         <Txt variant="paragraph">{t('settings.dark')}</Txt>
                     </View>
                     {theme === "dark" && <Txt variant="paragraph" className="text-gray-600">✓</Txt>}
                 </TouchableOpacity>
-                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg`} onPress={()=>setTheme("ToyDo")}>
+                {/* <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg`} onPress={()=>setTheme("ToyDo")}>
                     <View className="flex-row items-center">
                         <View className="w-[20px] h-[20px] border border-black rounded-full bg-bubble mr-2"></View>
                         <Txt variant="paragraph">{t('common.appName')}</Txt>
                     </View>
                     {theme === "ToyDo" && <Txt variant="paragraph" className="text-gray-600">✓</Txt>}
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </Section>
          
             {/* 표시 설정 */}
@@ -89,7 +91,7 @@ const Setting = memo(() => {
                 {languages.map((lang) => (
                     <TouchableOpacity 
                         key={lang}
-                        className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg mb-2`} 
+                        className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg mb-2`} 
                         onPress={() => changeLanguage(lang)}
                     >
                         <Txt variant="paragraph">{lang === 'ko' ? t('language.korean') : t('language.english')}</Txt>
@@ -99,15 +101,15 @@ const Setting = memo(() => {
             </Section>
             {/* 앱 정보 */}
             <Section title={t('settings.appInfo')}>
-                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg mb-2`}>
+                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg mb-2`}>
                     <Txt variant="paragraph">{t('settings.version')}</Txt>
                     <Txt variant="paragraph" className="text-gray-600">1.0.0</Txt>
                 </TouchableOpacity>
-                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg mb-2`}>
+                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg mb-2`}>
                     <Txt variant="paragraph">{t('settings.termsOfService')}</Txt>
                     <Txt variant="paragraph" className="text-gray-600">{'>'}</Txt>
                 </TouchableOpacity>
-                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-black" : "bg-gray-100"} rounded-lg`}>
+                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg`}>
                     <Txt variant="paragraph">{t('settings.privacyPolicy')}</Txt>
                     <Txt variant="paragraph" className="text-gray-600">{'>'}</Txt>
                 </TouchableOpacity>

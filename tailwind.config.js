@@ -28,6 +28,14 @@ module.exports = {
         // Red
         red500: '#FF0A0A',
         red700: '#A30000',
+
+         //block
+        blockWhite:"#ececd1",
+        blockBlack:"#14151f",
+        blockBlue:"#063E7B",
+        blockOrange:"#F19648",
+        blockRed:"#F55A3C",
+        blockYellow:"#F5D259"
       },
       padding: {
         px:'12px',

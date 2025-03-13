@@ -65,9 +65,7 @@ const Bubble = ({id, position, targetPosition, size, todoData}: BubbleProps) => 
   const handleBubblePress = () => {
     if (todoData) {
       handleOpenModal(); // 커스텀 훅의 함수 사용
-    } else {
-      Alert.alert('알림', '할 일 데이터가 없습니다.');
-    }
+    } 
   };
   
   return (
@@ -159,7 +157,6 @@ const Bubble = ({id, position, targetPosition, size, todoData}: BubbleProps) => 
           
           {/* 이모지 텍스트 */}
           <Text style={{ 
-            color: Colors.black, 
             fontSize: bubbleSize / 2.5,
             zIndex: 1 
           }}>

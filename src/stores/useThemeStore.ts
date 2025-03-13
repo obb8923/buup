@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { ThemeState, ThemeType } from '../types/store/ThemeStoreType';
 
 const useThemeStore = create<ThemeState>((set) => ({
-  theme: 'ToyDo',
+  theme: 'light',
   setTheme: (theme: ThemeType) => set({ theme }),
 }));
 

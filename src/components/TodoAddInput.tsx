@@ -4,7 +4,7 @@ import Txt from './Txt';
 import EmojiPicker, { EmojiPickerRef } from './EmojiPicker';
 import { t } from '../i18n';
 import useThemeStore from '../stores/useThemeStore';
-import useToDoStore from '../stores/useToDoStore';
+import useToDoStore, { RepetitionType } from '../stores/useToDoStore';
 import COLORS from '../constants/Colors';
 
 // 옵션 버튼 컴포넌트
@@ -62,7 +62,7 @@ function TodoAddInput() {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   
   // 반복 타입 상태 추가
-  const [repetition, setRepetition] = useState<string>('none');
+  const [repetition, setRepetition] = useState<RepetitionType>('none');
   // 마감일 상태 추가
   const [deadline, setDeadline] = useState<string | null>(null);
   
@@ -106,8 +106,8 @@ function TodoAddInput() {
   };
 
   // 반복 타입 선택 핸들러
-  const handleRepetitionSelect = (type: string) => {
-    setRepetition(type as string);
+  const handleRepetitionSelect = (type: RepetitionType) => {
+    setRepetition(type);
     setDetailMode('main');
   };
 
@@ -139,7 +139,7 @@ function TodoAddInput() {
 
   return (
     <View
-      className={`absolute bottom-0 w-full items-center pt-2 ${theme === "dark" ? "bg-black/80" : "bg-white/80"} backdrop-blur-sm`}
+      className={`absolute bottom-0 w-full items-center pt-2 ${theme === "dark" ? "bg-blockBlack/80" : "bg-white/80"} backdrop-blur-sm`}
     >
       {/* 첫 번째 줄: 이모지 버튼, 입력창, 제출 버튼 */}
       <View
@@ -163,7 +163,7 @@ function TodoAddInput() {
         {/* 할일 입력 필드 */}
         <TextInput
           ref={textInputRef}
-          className={`flex-1 py-2 px-2 ${theme === "dark" ? "text-white" : "text-black"}`}
+          className={`flex-1 py-2 px-2 ${theme === "dark" ? "text-white" : "text-blockBlack"}`}
           placeholder={t('todo.addTodoPlaceholder')}
           placeholderTextColor={theme === "dark" ? COLORS.gray200 : COLORS.gray600}
           value={newTodoContent}
@@ -269,22 +269,22 @@ function TodoAddInput() {
                 {/* 하루 반복 버튼 */}
                 <OptionButton 
                   label={t('todo.input.daily')}
-                  onPress={() => handleRepetitionSelect(t('todo.input.daily'))}
-                  isSelected={repetition === t('todo.input.daily')}
+                  onPress={() => handleRepetitionSelect('daily')}
+                  isSelected={repetition === 'daily'}
                 />
                 
                 {/* 한주 반복 버튼 */}
                 <OptionButton 
                   label={t('todo.input.weekly')}
-                  onPress={() => handleRepetitionSelect(t('todo.input.weekly'))}
-                  isSelected={repetition === t('todo.input.weekly')}
+                  onPress={() => handleRepetitionSelect('weekly')}
+                  isSelected={repetition === 'weekly'}
                 />
                 
                 {/* 한달 반복 버튼 */}
                 <OptionButton 
                   label={t('todo.input.monthly')}
-                  onPress={() => handleRepetitionSelect(t('todo.input.monthly'))}
-                  isSelected={repetition === t('todo.input.monthly')}
+                  onPress={() => handleRepetitionSelect('monthly')}
+                  isSelected={repetition === 'monthly'}
                 />
                 
                 {/* 반복 있을 경우 삭제 버튼 */}

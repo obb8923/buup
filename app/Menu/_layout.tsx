@@ -8,7 +8,6 @@ import Colors from "../../src/constants/Colors";
 import useThemeStore from "../../src/stores/useThemeStore";
 import { MenuType } from "../../src/types/MenuType";
 import { t, useLanguage } from "../../src/i18n";
-import CrayonCircle from "../../assets/svgs/CrayonCircle";
 // 메뉴 버튼 컴포넌트 - 메모이제이션 적용
 const MenuButton = ({ 
     titleKey, 
@@ -31,7 +30,7 @@ const MenuButton = ({
     // 스타일 계산 메모이제이션
     const buttonStyle = useMemo(() => {
         const baseStyle = `flex-1 w-full justify-center items-center`;
-        const activeStyle = isActive ? activeClass : theme === "dark" ? "bg-black" : "bg-white";
+        const activeStyle = isActive ? activeClass : theme === "dark" ? "bg-blockBlack" : "bg-white";
         
         let roundedStyle = "";
         if (isActive) {
@@ -72,7 +71,7 @@ const MenuLayout = () => {
     const { theme } = useThemeStore();
     const { language } = useLanguage();
         
-    const menuColorClass = theme === "dark" ? "bg-gray-700" : "bg-gray-200";
+    const menuColorClass = theme === "dark" ? "bg-gray-600" : "bg-gray-200";
     
     // 메뉴 전환 핸들러 메모이제이션
     const handleSetMenuType = useCallback((type: MenuType) => {
@@ -94,14 +93,14 @@ const MenuLayout = () => {
         <SafeAreaView className="flex-1 z-[BackgroundZLevel]">
             <StatusBar
                 barStyle={theme==="dark"?"light-content":"dark-content"}
-                backgroundColor={theme==="dark"?Colors.black:Colors.white}
+                backgroundColor={theme==="dark"?Colors.blockBlack:Colors.white}
                 translucent={false}
             />
-            <View className={`h-[10px] ${theme==="dark"?"bg-black":"bg-white"}`}/>
+            <View className={`h-[10px] ${theme==="dark"?"bg-blockBlack":"bg-white"}`}/>
            
 
             {/* menu section - ToDo, Setting */}
-            <View className={`flex-row h-[56px] ${theme==="dark"?"bg-black":"bg-white"}`}>
+            <View className={`flex-row h-[56px] ${theme==="dark"?"bg-blockBlack":"bg-white"}`}>
                 <MenuButton 
                     titleKey="menu.back"
                     isActive={false} 

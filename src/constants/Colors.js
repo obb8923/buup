@@ -19,9 +19,13 @@ const COLORS = {
     red500: '#FF0a0a',
     red700: '#a30000',
 
-    // 추가 색상
-    gray: "#888888",
-
+    //block
+    blockWhite:"#ececd1",
+    blockBlack:"#14151f",
+    blockBlue:"#063E7B",
+    blockOrange:"#F19648",
+    blockRed:"#F55A3C",
+    blockYellow:"#F5D259"
 
 };
 

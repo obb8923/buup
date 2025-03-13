@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { t } from '../i18n';
 
+export type RepetitionType = 'none'| 'daily'| 'weekly'| 'monthly';
 export interface ToDoItemType {
   id: string;          // 할 일의 고유 식별자
   content: string;     // 할 일의 내용
@@ -9,21 +10,22 @@ export interface ToDoItemType {
   createdAt: Date;     // 생성 날짜
   deadline: Date | null;     // 완료 기한
   emoji: string;      // 할 일을 기억하기 쉽게 하는 이모지
-  repetition: string; // 반복 설정 추가
+  repetition: RepetitionType; // 반복 설정 추가
 }
 
 interface ToDoState {
   todos: ToDoItemType[];                               
   isLoading: boolean;                                 
-  addTodo: (content: string, emoji: string, deadlineStr: string | null, repetition: string) => Promise<void>;
+  addTodo: (content: string, emoji: string, deadlineStr: string | null, repetition: RepetitionType) => Promise<void>;
   removeTodo: (id: string) => Promise<void>;
   toggleTodo: (id: string) => Promise<void>;
-  editTodoContent: (id: string, content: string, deadline?: Date | null, emoji?: string, repetition?: string) => Promise<void>;
+  editTodoContent: (id: string, content: string, deadline?: Date | null, emoji?: string, repetition?: RepetitionType) => Promise<void>;
   moveTodoUp: (id: string) => Promise<void>;
   moveTodoDown: (id: string) => Promise<void>;
   reorderTodos: (newOrder: ToDoItemType[]) => Promise<void>;
   sortByDeadline: () => Promise<void>;
   loadTodos: () => Promise<void>;
+  updateRecurringTodos: () => Promise<void>;
 }
 
 // AsyncStorage 키
@@ -128,6 +130,63 @@ const loadTodosFromStorage = async (): Promise<ToDoItemType[]> => {
   }
 };
 
+// 날짜가 지난 반복 할 일을 업데이트하는 함수
+const updateRecurringTodoDeadlines = (todos: ToDoItemType[]): ToDoItemType[] => {
+  const now = new Date();
+  now.setHours(0, 0, 0, 0); // 현재 날짜만 비교하기 위해 시간 초기화
+  
+  return todos.map(todo => {
+    // 마감일이 없거나 반복 설정이 없으면 그대로 반환
+    if (!todo.deadline || todo.repetition === 'none') {
+      return todo;
+    }
+    
+    const deadlineDate = new Date(todo.deadline);
+    deadlineDate.setHours(0, 0, 0, 0); // 시간 초기화
+    
+    // 마감일이 오늘 이전이면 (지났으면) 반복 설정에 따라 새 마감일 설정
+    if (deadlineDate < now) {
+      const newTodo = { ...todo };
+      let newDeadline = new Date(deadlineDate);
+      
+      // 반복 유형에 따라 새 마감일 계산
+      switch (todo.repetition) {
+        case 'daily':
+          // 하루씩 더해서 오늘 이후가 될 때까지 반복
+          while (newDeadline < now) {
+            newDeadline.setDate(newDeadline.getDate() + 1);
+          }
+          break;
+          
+        case 'weekly':
+          // 7일씩 더해서 오늘 이후가 될 때까지 반복
+          while (newDeadline < now) {
+            newDeadline.setDate(newDeadline.getDate() + 7);
+          }
+          break;
+          
+        case 'monthly':
+          // 한 달씩 더해서 오늘 이후가 될 때까지 반복
+          while (newDeadline < now) {
+            newDeadline.setMonth(newDeadline.getMonth() + 1);
+          }
+          break;
+      }
+      
+      newTodo.deadline = newDeadline;
+      
+      // 완료된 할 일은 미완료 상태로 초기화
+      if (newTodo.completed) {
+        newTodo.completed = false;
+      }
+      
+      return newTodo;
+    }
+    
+    return todo;
+  });
+};
+
 const useToDoStore = create<ToDoState>((set, get) => ({
   todos: [],
   isLoading: true,
@@ -138,9 +197,32 @@ const useToDoStore = create<ToDoState>((set, get) => ({
     try {
       const todos = await loadTodosFromStorage();
       set({ todos, isLoading: false });
+      
+      // 할 일 로드 후 반복 할 일 업데이트 실행
+      const store = useToDoStore.getState();
+      await store.updateRecurringTodos();
     } catch (error) {
       console.error('할 일 불러오기 실패:', error);
       set({ isLoading: false, todos: [] });
+    }
+  },
+  
+  // 반복 할 일 업데이트
+  updateRecurringTodos: async () => {
+    try {
+      const todos = get().todos;
+      const updatedTodos = updateRecurringTodoDeadlines(todos);
+      
+      // 변경사항이 있는지 확인
+      const hasChanges = JSON.stringify(todos) !== JSON.stringify(updatedTodos);
+      
+      if (hasChanges) {
+        set({ todos: updatedTodos });
+        await saveTodosToStorage(updatedTodos);
+        console.log('반복 할 일 업데이트 완료');
+      }
+    } catch (error) {
+      console.error('반복 할 일 업데이트 오류:', error);
     }
   },
   
@@ -161,7 +243,7 @@ const useToDoStore = create<ToDoState>((set, get) => ({
       } else if (deadlineStr === null) {
         deadlineDate = null;
       }
-      const finalRepetition: string = repetition || 'none';
+      const finalRepetition: RepetitionType = repetition as RepetitionType;
       
       const newTodo: ToDoItemType = {
         id: Date.now().toString(),
@@ -206,7 +288,7 @@ const useToDoStore = create<ToDoState>((set, get) => ({
   },
   
   // 할 일 내용 수정
-  editTodoContent: async (id: string, content: string, deadline?: Date | null, emoji?: string, repetition?: string) => {
+  editTodoContent: async (id: string, content: string, deadline?: Date | null, emoji?: string, repetition?: RepetitionType) => {
     try {
       const updatedTodos = get().todos.map((todo) => {
         if (todo.id === id) {
@@ -214,7 +296,7 @@ const useToDoStore = create<ToDoState>((set, get) => ({
           const updatedDeadline = deadline !== undefined ? deadline : todo.deadline;
           
           // repetition 값이 없으면 기존 값 유지, 기존 값도 없으면 'none' 설정
-          const updatedRepetition: string = repetition !== undefined ? repetition : (todo.repetition || 'none');
+          const updatedRepetition: RepetitionType = repetition !== undefined ? repetition : (todo.repetition || 'none');
           
           console.log('수정:', { id, content, deadline, updatedDeadline, repetition, updatedRepetition });
           
@@ -323,6 +405,27 @@ const useToDoStore = create<ToDoState>((set, get) => ({
 const initializeStore = async () => {
   const store = useToDoStore.getState();
   await store.loadTodos();
+  
+  // 미들웨어로 정기적인 업데이트 설정
+  setupRecurringUpdateCheck();
+};
+
+// 정기적인 업데이트 체크를 위한 함수
+const setupRecurringUpdateCheck = () => {
+  // 하루가 바뀔 때 체크하기 위해 자정에 호출되도록 설정
+  const checkForMidnight = () => {
+    const now = new Date();
+    const store = useToDoStore.getState();
+    
+    // 매 시간마다 반복 할 일 업데이트 확인
+    store.updateRecurringTodos();
+    
+    // 다음 확인을 1시간 후로 설정
+    setTimeout(checkForMidnight, 60 * 60 * 1000);
+  };
+  
+  // 첫 실행
+  checkForMidnight();
 };
 
 // 스토어 초기화 실행

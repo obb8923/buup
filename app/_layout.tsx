@@ -4,6 +4,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { setupLanguage } from '../src/i18n';
+import { AppState, AppStateStatus } from 'react-native';
+import useToDoStore from '../src/stores/useToDoStore';
 
 // 스플래시 스크린이 자동으로 숨겨지는 것을 방지
 SplashScreen.preventAutoHideAsync();
@@ -32,6 +34,26 @@ export default function Layout() {
         // 오류가 발생해도 앱은 계속 실행되도록 초기화 완료로 설정
         setI18nInitialized(true);
       });
+  }, []);
+
+  // AppState 변경 감지 및 반복 할 일 업데이트
+  useEffect(() => {
+    // 앱 상태 변경 핸들러
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      // 앱이 백그라운드나 비활성 상태에서 활성 상태로 돌아올 때
+      if (nextAppState === 'active') {
+        // 반복 할 일 업데이트 실행
+        useToDoStore.getState().updateRecurringTodos();
+      }
+    };
+
+    // AppState 리스너 등록
+    const appStateSubscription = AppState.addEventListener('change', handleAppStateChange);
+
+    // 컴포넌트 언마운트 시 리스너 제거
+    return () => {
+      appStateSubscription.remove();
+    };
   }, []);
 
   useEffect(() => {
