@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, TouchableOpacity, TextInput, Keyboard } from 'react-native';
+import { View, TouchableOpacity, TextInput, Keyboard, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import Txt from './Txt';
 import EmojiPicker, { EmojiPickerRef } from './EmojiPicker';
 import { t } from '../i18n';
@@ -69,6 +70,10 @@ function TodoAddInput() {
   // 세부 설정 모드 상태 관리
   const [detailMode, setDetailMode] = useState<'main' | 'deadline' | 'repetition'>('main');
 
+  // DatePicker 관련 상태
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
   // ref 관리
   const textInputRef = useRef<TextInput>(null);
   const emojiPickerRef = useRef<EmojiPickerRef>(null);
@@ -85,7 +90,7 @@ function TodoAddInput() {
     setRepetition('none');
     // 약간의 딜레이 후 할일 추가 및 입력값 초기화
     setTimeout(() => {
-      console.log('추가',newTodoContent, selectedEmoji, deadline, repetition);
+      // console.log('추가',newTodoContent, selectedEmoji, deadline, repetition);
       addTodo(newTodoContent, selectedEmoji, deadline, repetition);
       setDeadline(null);
     }, 100); // 100ms 딜레이 (상황에 따라 조정 가능)
@@ -103,6 +108,29 @@ function TodoAddInput() {
   const handleDeadlineSelect = (selectedDeadline: string | null) => {
     setDeadline(selectedDeadline);
     setDetailMode('main');
+  };
+
+  // 날짜 선택 핸들러
+  const handleDateChange = (event: any, date?: Date) => {
+    const currentDate = date || selectedDate;
+    setShowDatePicker(Platform.OS === 'ios');
+    
+    if (date) {
+      setSelectedDate(currentDate);
+      
+      // 날짜를 yyyy-MM-dd 형식의 문자열로 변환
+      const year = currentDate.getFullYear();
+      const month = String(currentDate.getMonth() + 1).padStart(2, '0');
+      const day = String(currentDate.getDate()).padStart(2, '0');
+      const dateString = `${year}-${month}-${day}`;
+      
+      handleDeadlineSelect(dateString);
+    }
+  };
+
+  // 날짜 선택기 보여주기 핸들러
+  const showDatePickerModal = () => {
+    setShowDatePicker(true);
   };
 
   // 반복 타입 선택 핸들러
@@ -245,6 +273,16 @@ function TodoAddInput() {
                   isSelected={deadline === t('todo.input.inAWeek')}
                 />
                 
+                {/* 날짜 선택 버튼 */}
+                <OptionButton 
+                  label={t('todo.input.selectDate') || "날짜 선택"}
+                  onPress={showDatePickerModal}
+                  isSelected={deadline !== null && 
+                    deadline !== t('todo.input.today') && 
+                    deadline !== t('todo.input.tomorrow') && 
+                    deadline !== t('todo.input.inAWeek')}
+                />
+                
                 {/* 마감일 있을 경우 삭제 버튼 */}
                 {deadline && (
                   <OptionButton 
@@ -268,23 +306,23 @@ function TodoAddInput() {
                 
                 {/* 하루 반복 버튼 */}
                 <OptionButton 
-                  label={t('todo.input.daily')}
-                  onPress={() => handleRepetitionSelect('daily')}
-                  isSelected={repetition === 'daily'}
+                  label={t('todo.repetition.daily')}
+                  onPress={() => handleRepetitionSelect(t('todo.repetition.daily') as RepetitionType)}
+                  isSelected={repetition === t('todo.repetition.daily')}
                 />
                 
                 {/* 한주 반복 버튼 */}
                 <OptionButton 
-                  label={t('todo.input.weekly')}
-                  onPress={() => handleRepetitionSelect('weekly')}
-                  isSelected={repetition === 'weekly'}
+                  label={t('todo.repetition.weekly')}
+                  onPress={() => handleRepetitionSelect(t('todo.repetition.weekly') as RepetitionType)}
+                  isSelected={repetition === t('todo.repetition.weekly')}
                 />
                 
                 {/* 한달 반복 버튼 */}
                 <OptionButton 
                   label={t('todo.input.monthly')}
-                  onPress={() => handleRepetitionSelect('monthly')}
-                  isSelected={repetition === 'monthly'}
+                  onPress={() => handleRepetitionSelect(t('todo.input.monthly') as RepetitionType)}
+                  isSelected={repetition === t('todo.input.monthly')}
                 />
                 
                 {/* 반복 있을 경우 삭제 버튼 */}
@@ -300,6 +338,17 @@ function TodoAddInput() {
           </View>
         )}
       </View>
+
+      {/* DateTimePicker */}
+      {showDatePicker && (
+        <DateTimePicker
+          value={selectedDate}
+          mode="date"
+          display="default"
+          onChange={handleDateChange}
+          minimumDate={new Date()}
+        />
+      )}
 
       {/* 이모지 피커 */}
       <EmojiPicker ref={emojiPickerRef} onEmojiSelected={handleEmojiSelected} />

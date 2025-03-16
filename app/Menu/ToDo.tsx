@@ -87,7 +87,7 @@ const ToDo = memo(() => {
         data={filteredTodos}
         renderItem={renderItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={{ padding: 10, paddingBottom: 70 }}
+        contentContainerStyle={{ padding: 10, paddingBottom: 95 }}
         // 성능 최적화를 위한 추가 속성
         maxToRenderPerBatch={10}
         initialNumToRender={10}

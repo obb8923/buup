@@ -101,18 +101,21 @@ const Setting = memo(() => {
             </Section>
             {/* 앱 정보 */}
             <Section title={t('settings.appInfo')}>
+                {/* 버전 정보 */}
                 <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg mb-2`}>
                     <Txt variant="paragraph">{t('settings.version')}</Txt>
                     <Txt variant="paragraph" className="text-gray-600">1.0.0</Txt>
                 </TouchableOpacity>
-                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg mb-2`}>
+                {/* 이용약관 */}
+                {/* <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg mb-2`}>
                     <Txt variant="paragraph">{t('settings.termsOfService')}</Txt>
                     <Txt variant="paragraph" className="text-gray-600">{'>'}</Txt>
-                </TouchableOpacity>
-                <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg`}>
+                </TouchableOpacity> */}
+                {/* 개인정보처리방침 */}
+                {/* <TouchableOpacity className={`flex-row justify-between items-center p-3 ${theme === "dark" ? "bg-blockBlack" : "bg-gray-100"} rounded-lg`}>
                     <Txt variant="paragraph">{t('settings.privacyPolicy')}</Txt>
                     <Txt variant="paragraph" className="text-gray-600">{'>'}</Txt>
-                </TouchableOpacity>
+                </TouchableOpacity> */}
             </Section>
 
             {/* 하단 여백 */}

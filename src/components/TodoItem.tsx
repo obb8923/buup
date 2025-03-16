@@ -83,7 +83,6 @@ const TodoItem: React.FC<TodoItemProps> = ({ todo }) => {
         todo={todo}
         onDelete={handleDeleteTodo}
         isCompleted={todo.completed}
-        onToggleComplete={handleToggleTodo}
         onSave={handleSaveTodo}
       />
     </>
@@ -126,12 +125,12 @@ const styles = StyleSheet.create({
   },
   completedText: {
     fontSize: 16,
-    color: Colors.gray,
+    color: Colors.gray600,
     textDecorationLine: 'line-through',
   },
   deadline: {
     fontSize: 12,
-    color: Colors.gray,
+    color: Colors.gray600,
     marginTop: 4,
   },
   checkbox: {

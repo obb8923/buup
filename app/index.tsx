@@ -5,7 +5,12 @@ import ModeBlock from './ModeBlock';
 import useModeStore from '../src/stores/useModeStore';
 const App = () => {
   const { mode } = useModeStore();
-
+  if (!__DEV__) {
+    console.log = () => {};
+    console.warn = () => {};
+    console.error = () => {};
+  }
+  
   return (
     <BG>
       {mode === 'bubble' ? <ModeBubble /> : <ModeBlock />}      

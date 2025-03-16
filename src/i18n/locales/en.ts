@@ -87,6 +87,7 @@ export default {
       today: 'Today',
       tomorrow: 'Tomorrow',
       inAWeek: 'In a week',
+      selectDate: '📅',
       delete: 'Delete',
       daily: 'Daily',
       weekly: 'Weekly',
@@ -113,5 +114,13 @@ export default {
       transport: 'Transport',
       symbol: 'Symbol'
     }
+  },
+  initialTodos:{
+    todo1:"Next week project plan",
+    todo2:"Clean the kitchen and bathroom",
+    todo3:"Buy cat food",
+    todo4:"Check email",
+    todo5:"Write a diary",
+    todo6:"Water the plants",
   }
 }; 

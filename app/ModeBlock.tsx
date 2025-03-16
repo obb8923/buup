@@ -21,7 +21,9 @@ const PhysicsUpdate = (entities: any, { time }: any) => {
 };
 // Matter.js 엔진과 월드를 초기화하고, 다양한 물리 객체들을 생성하여 월드에 추가합니다.
 const initPhysics = (todos: ToDoItemType[]) => {
-  const shapeCount = todos.length;
+  // 최대 12개의 블록만 생성하도록 제한
+  const limitedTodos = todos.slice(0, 12);
+  const shapeCount = limitedTodos.length;
   const engine = Matter.Engine.create({ 
     enableSleeping: true,
     positionIterations: 12,  // 6에서 12로 증가 - 더 정확한 위치 계산
@@ -106,7 +108,7 @@ const initPhysics = (todos: ToDoItemType[]) => {
         );
       }
       // 생성된 물리 객체에 할 일 데이터 연결
-      (body as any).todoData = todos[i];
+      (body as any).todoData = limitedTodos[i];
       // 생성된 물리 객체를 물리 엔진 세계에 추가
       Matter.Composite.add(world, body);
     }
@@ -354,9 +356,9 @@ useEffect(() => {
         }}
         running={!isPaused} // isPaused 상태에 따라 엔진 업데이트를 제어합니다.
 
-        onEvent={(event: any) => {
-          console.log("onEvent", event);
-        }}  
+        // onEvent={(event: any) => {
+        //   console.log("onEvent", event);
+        // }}  
       />
       {/* 메모이제이션된 렌더러 사용 */}
       {memoizedRenderer}

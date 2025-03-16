@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { t } from '../i18n';
 
-export type RepetitionType = 'none'| 'daily'| 'weekly'| 'monthly';
+export type RepetitionType = 'none'| 'daily'| 'weekly'| 'monthly' | '매일' | '매주' | '매월';
 export interface ToDoItemType {
   id: string;          // 할 일의 고유 식별자
   content: string;     // 할 일의 내용
@@ -76,21 +76,57 @@ const deserializeTodos = (json: string): ToDoItemType[] => {
 const initialTodos: ToDoItemType[] = [
   {
     id: "1",
-    content: "다음 주 프로젝트 계획서 작성하기",
+    content: t('initialTodos.todo1'),
     completed: false,
     createdAt: new Date(),
-    deadline: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+    deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     emoji: "💻",
     repetition: "none",
   },
   {
-    id: "6",
+    id: "2",
     content: "주방과 화장실 청소하기",
     completed: false,
     createdAt: new Date(),
-    deadline: null,
+    deadline: new Date(),
     emoji: "🧹",
     repetition: "daily",
+  },
+  {
+    id: "3",
+    content: "고양이 사료 사러가기",
+    completed: false,
+    createdAt: new Date(),
+    deadline: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+    emoji: "🐱",
+    repetition: "none",
+  },
+  {
+    id: "4",
+    content: "이메일 확인하기",
+    completed: true,
+    createdAt: new Date(),
+    deadline: new Date(Date.now()),
+    emoji: "📧",
+    repetition: "daily",
+  },
+  {
+    id: "5",
+    content: "일기 쓰기",
+    completed: false,
+    createdAt: new Date(),
+    deadline: new Date(Date.now()),
+    emoji: "💭",
+    repetition: "daily",
+  },
+  {
+    id: "6",
+    content: "화분에 물주기",
+    completed: false,
+    createdAt: new Date(),
+    deadline: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+    emoji: "🪴",
+    repetition: "weekly",
   }
 ];
 
@@ -230,7 +266,7 @@ const useToDoStore = create<ToDoState>((set, get) => ({
   addTodo: async (content: string, emoji: string, deadlineStr: string | null, repetition: string) => {
     try {
       let deadlineDate:Date | null = null;
-      
+      console.log("deadlineStr", deadlineStr)
       if (deadlineStr) {
         const now = new Date();
         if (deadlineStr === t('todo.input.today')) {
@@ -239,12 +275,15 @@ const useToDoStore = create<ToDoState>((set, get) => ({
           deadlineDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 23, 59, 59);
         } else if (deadlineStr === t('todo.input.inAWeek')) {
           deadlineDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 7, 23, 59, 59);
+        } else {
+          // 'yyyy-MM-dd' 형식의 문자열을 Date 객체로 변환
+          const [year, month, day] = deadlineStr.split('-').map(Number);
+          deadlineDate = new Date(year, month - 1, day, 23, 59, 59);
         }
       } else if (deadlineStr === null) {
         deadlineDate = null;
       }
       const finalRepetition: RepetitionType = repetition as RepetitionType;
-      
       const newTodo: ToDoItemType = {
         id: Date.now().toString(),
         content,
@@ -254,7 +293,7 @@ const useToDoStore = create<ToDoState>((set, get) => ({
         emoji: emoji || '📝',
         repetition: finalRepetition,
       };
-      
+
       const updatedTodos = [newTodo, ...get().todos];
       set({ todos: updatedTodos });
       await saveTodosToStorage(updatedTodos);

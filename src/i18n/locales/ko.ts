@@ -87,6 +87,7 @@ export default {
       today: '오늘',
       tomorrow: '내일',
       inAWeek: '일주일뒤',
+      selectDate: '📅',
       delete: '삭제',
       daily: '하루',
       weekly: '한주',
@@ -113,5 +114,13 @@ export default {
       transport: '교통',
       symbol: '기호'
     }
+  },
+  initialTodos:{
+    todo1:"다음 주 프로젝트 계획서 작성하기",
+    todo2:"주방과 화장실 청소하기",
+    todo3:"고양이 사료 사러가기",
+    todo4:"이메일 확인하기",
+    todo5:"일기 쓰기",
+    todo6:"화분에 물주기",
   }
 }; 
